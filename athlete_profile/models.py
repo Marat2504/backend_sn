@@ -25,9 +25,7 @@ class Profile(models.Model):
     gender = models.CharField(max_length=10, choices=CHOICES_GENDER)
     sport_type = models.CharField(max_length=10, choices=CHOICES_SPORTS)
     characteristics = models.TextField()
-    inventory = models.TextField()
     athlete_photo = models.ImageField(upload_to='athlete_photos/%Y/%m/%d', blank=True, null=True)
-    inventory_photo = models.ImageField(upload_to='inventory_photos/%Y/%m/%d', blank=True, null=True)
     date_of_birth = models.DateField(null=True)
     city = models.CharField(max_length=50, null=True)
     contacts_messenger = models.TextField(null=True)
@@ -40,3 +38,12 @@ class Profile(models.Model):
 def create_user_cart(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+
+
+class ProfilePhoto(models.Model):
+    profile = models.ForeignKey(Profile, related_name='inventory_photos', on_delete=models.CASCADE)
+    photo = models.ImageField(upload_to='inventory_photos/%Y/%m/%d')
+    upload_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'id: {self.id} Photo for {self.profile.name} {self.profile.surname}'
