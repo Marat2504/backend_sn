@@ -10,9 +10,10 @@ from .serializers import ProfileSerializer, ProfilePhotoSerializer
 
 
 @api_view(['GET'])
-def get_profile(request, uuid_profile):
+@permission_classes([IsAuthenticatedOrReadOnly])
+def get_profile(request, user_profile_uuid):
     try:
-        profile = Profile.objects.get(id=uuid_profile)
+        profile = Profile.objects.get(id=user_profile_uuid)
     except Profile.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -36,7 +37,7 @@ def edit_profile(request, uuid_profile):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def get_photo(request, uuid_profile):
     try:
         profile = Profile.objects.get(id=uuid_profile)
