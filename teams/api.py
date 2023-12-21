@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AnonymousUser
 
+from django.db.models import Q
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
@@ -64,11 +66,12 @@ def is_subscribe(request, team_id, user_id):
 @permission_classes([IsAuthenticated])
 def create_team(request):
     user_id = request.user.id
-    print(request.data)
 
     form_data = {
-        'name': request.data.get('name'),
-        'description': request.data.get('description'),
+        'name': request.data['name'],
+        'description': request.data['description'],
+        'detailed_description': request.data['detailedDescription'],
+        'telegram_team': request.data['telegramTeam'],
         'captain_id': user_id
     }
     try:
@@ -94,38 +97,38 @@ def get_current_team(request, slug_team):
         return Response({'error': 'Team or User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def edit_current_team(request, team_uuid, user_uuid):
+    try:
+        if request.user.id == user_uuid:
+            current_team = Team.objects.get(id=team_uuid)
+            if current_team.captain_id.id == user_uuid:
+                current_team.name = request.data['name']
+                current_team.description = request.data['description']
+                current_team.detailed_description = request.data['detailed_description']
+                current_team.telegram_team = request.data['telegram_team']
+                if request.FILES:
+                    current_team.avatar = request.FILES['avatar']
+                current_team.save()
+                serializer = TeamSerializer(current_team, context={'user': request.user})
+                return Response(serializer.data)
+            else:
+                return Response({'error': 'you are not the captain of this team'})
+    except Team.DoesNotExist:
+        return Response({'error': 'Team or User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_current_team_athletes(request, slug_team):
     try:
-        profiles = Profile.objects.filter(user__members__team__slug=slug_team)
+        captain_profile = Team.objects.get(slug=slug_team).captain_id.user_profile
+
+        profiles = Profile.objects.filter(user__members__team__slug=slug_team)\
+            .exclude(Q(id=captain_profile.id))
+
         serializer = ProfileSerializer(profiles, many=True)
         return Response(serializer.data)
     except Profile.DoesNotExist:
         return Response({'error': 'Current team profiles not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-
-
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticatedOrReadOnly])
-# def get_teams(request, user_id=None):
-#     if user_id is not None:
-#         try:
-#             user = User.objects.get(id=user_id)
-#             teams = Team.objects.all()
-#             if user != AnonymousUser():
-#                 serializer = TeamSerializer(teams, context={'user': user},
-#                                             many=True)
-#                 return Response(serializer.data)
-#             else:
-#                 user = None
-#                 serializer = TeamSerializer(teams, context={'user': user},
-#                                             many=True)
-#                 return Response(serializer.data)
-#
-#         except Team.DoesNotExist:
-#             print('null')
-#             return Response(status=status.HTTP_404_NOT_FOUND)

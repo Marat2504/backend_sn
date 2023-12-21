@@ -62,7 +62,3 @@ def get_captain_team(request, slug_team):
         return Response(serializer.data)
     except (Team.DoesNotExist, Profile.DoesNotExist, User.DoesNotExist):
         return Response({'error': 'Captain profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-

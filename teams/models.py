@@ -14,6 +14,8 @@ class Team(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField()
+    detailed_description = models.TextField(null=True)
+    telegram_team = models.CharField(max_length=100, null=True)
     slug = AutoSlugField(populate_from='name', unique=True)
     avatar = models.ImageField(upload_to='teams_avatars/%Y/%m/%d',
                                default='teams_avatars/avatarTeams.png',
