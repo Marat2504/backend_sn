@@ -9,7 +9,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class ProfilePhotoSerializer(serializers.ModelSerializer):
-    # profile = ProfileSerializer(read_only=True)
 
     class Meta:
         model = ProfilePhoto

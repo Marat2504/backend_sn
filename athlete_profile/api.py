@@ -3,9 +3,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 
+
 from account.models import User
 from teams.models import Team
-from .models import Profile
+from .models import Profile, ProfilePhoto
 from .serializers import ProfileSerializer, ProfilePhotoSerializer
 
 
@@ -48,6 +49,37 @@ def get_photo(request, uuid_profile):
 
     except Profile.DoesNotExist:
         return Response({'error': 'Profile not found'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_photo(request, uuid_profile):
+    profile = Profile.objects.get(id=uuid_profile)
+    files = request.FILES.getlist('files[]')
+    new_photo = []
+    for file in files:
+        photo = ProfilePhoto.objects.create(profile=profile, photo=file)
+        new_photo.append(photo)
+
+    serializer = ProfilePhotoSerializer(new_photo, many=True)
+    serialized_data = serializer.data
+    return Response(serialized_data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def del_photo(request, uuid_profile):
+    profile = Profile.objects.get(id=uuid_profile)
+    photo_ids = request.data
+
+    photos = ProfilePhoto.objects.filter(profile=profile, id__in=photo_ids)
+    if photos.exists():
+        serializer = ProfilePhotoSerializer(photos, many=True)
+        serialized_data = serializer.data
+        photos.delete()
+        return Response(serialized_data)
+    else:
+        return Response({'message': 'фотографии не найдены'})
 
 
 @api_view(['GET'])

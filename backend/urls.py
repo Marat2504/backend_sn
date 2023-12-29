@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/', include('account.urls')),
     path('api/profiles/', include('athlete_profile.urls')),
     path('api/teams/', include('teams.urls')),
+    path('api/subscribe/', include('subscription.urls')),
 
 ]
 

@@ -26,7 +26,7 @@ class TeamSerializer(serializers.ModelSerializer):
 class TeamCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ['id', 'name', 'description',
+        fields = ['id', 'name', 'slug', 'description',
                   'avatar', 'detailed_description',
                   'count_members', 'captain_id',
                   'telegram_team']
