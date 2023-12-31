@@ -98,7 +98,7 @@ def get_current_team(request, slug_team):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def edit_current_team(request, team_uuid, user_uuid):
     try:
         if request.user.id == user_uuid:

@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'account',
     'athlete_profile',
     'teams',
-    'subscription'
+    'subscription',
+    'workout'
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,5 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=180),
     "ROTATE_REFRESH_TOKENS": False,
 }
+
+TESSERACT_CMD = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
